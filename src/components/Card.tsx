@@ -1,5 +1,5 @@
 import React from 'react';
-import APODImage from '../../models/APODImage';
+import APODImage from '../models/APODImage';
 
 interface CardProps {
   image: APODImage;

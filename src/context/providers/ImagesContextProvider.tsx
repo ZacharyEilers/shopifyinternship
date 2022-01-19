@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext, FC } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 
-import DateContext from '../DateContext';
+import ImagesContext from '../ImagesContext';
 import axios from 'axios';
 import DateHelper from '../../helpers/DateHelper';
 import APODImageHelper, { APIResponse } from '../../helpers/API/APODImage';
-import ImagesContext from '../ImagesContext';
 
 const today = new Date();
 const APIKEY = '81rBdkjjyRQxEbb7sWftPZ6jC4IJO7fTIa3HUldb';
@@ -79,12 +78,12 @@ const cards = [
 ];
 
 const ImagesContextProvider: FC = ({ children }) => {
-  const imagesContext = useContext(ImagesContext);
-
   let [fromDate, setFromDate] = useState<Date>(today);
   let [toDate, setToDate] = useState<Date>(today);
 
   let [images, setImages] = useState(cards);
+
+  let [loadingImages, setLoadingImages] = useState(false);
 
   // If you are reading directly from localstorage you might
   // want to use localStorage.getItem("userid") as the initial value
@@ -97,23 +96,25 @@ const ImagesContextProvider: FC = ({ children }) => {
     };
 
     const fetchData = async () => {
+      setLoadingImages(true);
+
       const result = await axios(
-        `https://api.nasa.gov/planetary/apod?
-        api_key=${APIKEY}
-        &start_date=${dateStrings.to}
-        &end_date=${dateStrings.from}`
+        `https://api.nasa.gov/planetary/apod?api_key=${APIKEY}&start_date=${dateStrings.from}&end_date=${dateStrings.to}`
       );
+
+      setLoadingImages(false);
+
       return result.data.map((img: APIResponse) =>
         APODImageHelper.fromAPI(img)
       );
     };
     fetchData()
-      .then((data) => imagesContext.setImages(data))
+      .then((data) => setImages(data))
       .catch(console.log);
   }, [fromDate, toDate]);
 
   return (
-    <DateContext.Provider
+    <ImagesContext.Provider
       value={{
         dates: {
           fromDate,
@@ -125,11 +126,18 @@ const ImagesContextProvider: FC = ({ children }) => {
           images,
           setImages,
         },
+        loading: {
+          images: loadingImages,
+        },
       }}
     >
       {children}
-    </DateContext.Provider>
+    </ImagesContext.Provider>
   );
 };
 
 export default ImagesContextProvider;
+
+export const ImagesLoader = () => {
+  return <div></div>;
+};

@@ -3,10 +3,10 @@ import React, { useContext } from 'react';
 import DatePicker from 'react-widgets/DatePicker';
 import 'react-widgets/styles.css';
 
-import DateContext from '../../../context/DateContext';
+import ImagesContext from '../context/ImagesContext';
 
 const DateRangerPicker = () => {
-  const dateContext = useContext(DateContext);
+  const imagesContext = useContext(ImagesContext);
 
   return (
     <div>
@@ -18,17 +18,17 @@ const DateRangerPicker = () => {
               <div className='col'>
                 <h5>From</h5>
                 <DatePicker
-                  defaultValue={dateContext.fromDate}
+                  defaultValue={imagesContext.dates.fromDate}
                   valueFormat={{ dateStyle: 'medium' }}
-                  onChange={(value) => dateContext.setFromDate(value)}
+                  onChange={(value) => imagesContext.dates.setFromDate(value)}
                 />
               </div>
               <div className='col'>
                 <h5>To</h5>
                 <DatePicker
-                  defaultValue={dateContext.fromDate}
+                  defaultValue={imagesContext.dates.fromDate}
                   valueFormat={{ dateStyle: 'medium' }}
-                  onChange={(value) => dateContext.setToDate(value)}
+                  onChange={(value) => imagesContext.dates.setToDate(value)}
                 />
               </div>
             </div>

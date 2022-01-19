@@ -1,7 +1,7 @@
 import React from 'react'
 import APODImage from '../models/APODImage';
 
-export interface DateContextStructure {
+export interface ImagesContextStructure {
     dates: {
         fromDate: Date,
         toDate: Date,
@@ -12,9 +12,16 @@ export interface DateContextStructure {
         images: APODImage[],
         setImages: Function
     },
+    loading: {
+        images: boolean
+    }
+
 }
 
-const DateContext = React.createContext<DateContextStructure>({
+const ImagesContext = React.createContext<ImagesContextStructure>({
+    loading: {
+        images: false
+    },
     dates: {
         fromDate: new Date(),
         toDate: new Date(),
@@ -26,5 +33,4 @@ const DateContext = React.createContext<DateContextStructure>({
         setImages: () => { }
     }
 });
-
-export default DateContext;
+export default ImagesContext;
