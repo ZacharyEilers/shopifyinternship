@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
-import Card from './components/Card/Card';
-import ImagesContext from './context/ImagesContext';
-import DateContext, { DateContextStructure } from './context/DateContext';
-import HomePage from './components/Card/pages/HomePage';
-import AboutPage from './components/Card/pages/AboutPage';
+import React, { useState, useEffect, useContext, FC } from 'react';
 
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Navbar from './components/Card/Navbar';
-import ImagesContextProvider from './context/providers/ImagesContextProvider';
+import DateContext from '../DateContext';
+import axios from 'axios';
+import DateHelper from '../../helpers/DateHelper';
+import APODImageHelper, { APIResponse } from '../../helpers/API/APODImage';
+import ImagesContext from '../ImagesContext';
 
-//81rBdkjjyRQxEbb7sWftPZ6jC4IJO7fTIa3HUldb
+const today = new Date();
+const APIKEY = '81rBdkjjyRQxEbb7sWftPZ6jC4IJO7fTIa3HUldb';
 
 const cards = [
   {
@@ -80,23 +78,58 @@ const cards = [
   },
 ];
 
-function App() {
+const ImagesContextProvider: FC = ({ children }) => {
+  const imagesContext = useContext(ImagesContext);
+
+  let [fromDate, setFromDate] = useState<Date>(today);
+  let [toDate, setToDate] = useState<Date>(today);
+
   let [images, setImages] = useState(cards);
-  const imagesContextValue = { images, setImages };
+
+  // If you are reading directly from localstorage you might
+  // want to use localStorage.getItem("userid") as the initial value
+  // const [userid, setUserid] = useState(null);
+
+  useEffect(() => {
+    const dateStrings = {
+      from: DateHelper.toDashedString(fromDate),
+      to: DateHelper.toDashedString(toDate),
+    };
+
+    const fetchData = async () => {
+      const result = await axios(
+        `https://api.nasa.gov/planetary/apod?
+        api_key=${APIKEY}
+        &start_date=${dateStrings.to}
+        &end_date=${dateStrings.from}`
+      );
+      return result.data.map((img: APIResponse) =>
+        APODImageHelper.fromAPI(img)
+      );
+    };
+    fetchData()
+      .then((data) => imagesContext.setImages(data))
+      .catch(console.log);
+  }, [fromDate, toDate]);
 
   return (
-    <ImagesContextProvider>
-      <ImagesContext.Provider value={imagesContextValue}>
-        <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route path='/' element={<HomePage />} />
-            <Route path='about' element={<AboutPage />} />
-          </Routes>
-        </BrowserRouter>
-      </ImagesContext.Provider>
-    </ImagesContextProvider>
+    <DateContext.Provider
+      value={{
+        dates: {
+          fromDate,
+          toDate,
+          setFromDate,
+          setToDate,
+        },
+        images: {
+          images,
+          setImages,
+        },
+      }}
+    >
+      {children}
+    </DateContext.Provider>
   );
-}
+};
 
-export default App;
+export default ImagesContextProvider;
