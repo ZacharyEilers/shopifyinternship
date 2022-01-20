@@ -77,7 +77,7 @@ const Card = ({ image }: CardProps) => {
                 imagesContext.likedImages.toggleImage(dateID);
               }}
             >
-              Like
+              {isLiked ? 'Unlike' : 'Like'}
             </button>
           </div>
         </div>
