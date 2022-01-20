@@ -4,8 +4,11 @@ import ImagesContext from '../ImagesContext';
 import axios from 'axios';
 import DateHelper from '../../helpers/DateHelper';
 import APODImageHelper, { APIResponse } from '../../helpers/API/APODImage';
+import APODImage from '../../models/APODImage';
 
 const today = new Date();
+const fourDaysInMilliseconds = 4 * 24 * 60 * 60 * 1000;
+const fourDaysAgo = new Date(today.valueOf() - fourDaysInMilliseconds);
 const APIKEY = '81rBdkjjyRQxEbb7sWftPZ6jC4IJO7fTIa3HUldb';
 
 const cards = [
@@ -78,10 +81,22 @@ const cards = [
 ];
 
 const ImagesContextProvider: FC = ({ children }) => {
-  let [fromDate, setFromDate] = useState<Date>(today);
+  let [fromDate, setFromDate] = useState<Date>(fourDaysAgo);
   let [toDate, setToDate] = useState<Date>(today);
 
-  let [images, setImages] = useState(cards);
+  let [images, setImages] = useState<APODImage[]>(
+    cards.map<APODImage>((c) => ({
+      ...c,
+      dateID: c.date,
+      date: DateHelper.fromDashedString(c.date),
+    }))
+  );
+
+  const storedLikedValues = JSON.parse(
+    localStorage.getItem('likedImageDateIDs') || '[]'
+  ) as string[];
+
+  let [likedImages, setLikedImages] = useState<string[]>(storedLikedValues);
 
   let [loadingImages, setLoadingImages] = useState(false);
 
@@ -106,7 +121,7 @@ const ImagesContextProvider: FC = ({ children }) => {
 
       return result.data.map((img: APIResponse) =>
         APODImageHelper.fromAPI(img)
-      );
+      ) as APODImage[];
     };
     fetchData()
       .then((data) => setImages(data))
@@ -129,6 +144,33 @@ const ImagesContextProvider: FC = ({ children }) => {
         loading: {
           images: loadingImages,
         },
+        likedImages: {
+          dateIDs: likedImages,
+          toggleImage: (dateID: string) => {
+            if (likedImages.includes(dateID)) {
+              //remove the image id
+              setLikedImages((st) => {
+                let newState = st.filter((v) => v !== dateID);
+                localStorage.setItem(
+                  'likedImageDateIDs',
+                  JSON.stringify(newState)
+                );
+                return newState;
+              });
+            } else {
+              //add the image id
+              setLikedImages((st) => {
+                let newState = [...st, dateID];
+                localStorage.setItem(
+                  'likedImageDateIDs',
+                  JSON.stringify(newState)
+                );
+                return newState;
+              });
+            }
+          },
+          isLiked: (dateID: string) => likedImages.includes(dateID),
+        },
       }}
     >
       {children}
@@ -137,7 +179,3 @@ const ImagesContextProvider: FC = ({ children }) => {
 };
 
 export default ImagesContextProvider;
-
-export const ImagesLoader = () => {
-  return <div></div>;
-};

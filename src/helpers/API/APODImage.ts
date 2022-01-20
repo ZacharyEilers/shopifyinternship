@@ -22,7 +22,8 @@ const APODImageHelper = {
             serviceVersion: service_version,
             URL: url,
             hdURL: hdurl,
-            date: DateHelper.fromDashedString(date)
+            date: DateHelper.fromDashedString(date),
+            dateID: date
         } as APODImage
     }
 }

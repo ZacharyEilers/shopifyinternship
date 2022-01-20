@@ -15,8 +15,12 @@ export interface ImagesContextStructure {
     loading: {
         images: boolean
     }
-
-}
+    likedImages: {
+        dateIDs: string[],
+        toggleImage: Function,
+        isLiked: Function,
+    },
+};
 
 const ImagesContext = React.createContext<ImagesContextStructure>({
     loading: {
@@ -31,6 +35,12 @@ const ImagesContext = React.createContext<ImagesContextStructure>({
     images: {
         images: [],
         setImages: () => { }
-    }
+    },
+    likedImages: {
+        dateIDs: [],
+        toggleImage: () => { },
+        isLiked: () => { },
+    },
 });
+
 export default ImagesContext;

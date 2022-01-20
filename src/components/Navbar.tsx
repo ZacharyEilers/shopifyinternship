@@ -5,7 +5,9 @@ const Navbar = () => {
   return (
     <nav className='navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top'>
       <div className='container-fluid'>
-        <div className='navbar-brand'>Navbar</div>
+        <Link className='navbar-brand' to='/'>
+          Spacebook
+        </Link>
         <button
           className='navbar-toggler'
           type='button'
@@ -22,6 +24,11 @@ const Navbar = () => {
             <li className='nav-item'>
               <Link className='nav-link active' aria-current='page' to='/'>
                 Home
+              </Link>
+            </li>
+            <li className='nav-item'>
+              <Link className='nav-link active' aria-current='page' to='/about'>
+                About
               </Link>
             </li>
           </ul>
